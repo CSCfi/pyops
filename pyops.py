@@ -193,7 +193,7 @@ class opsview:
     try:
       result = self.get_data('config/' + str(item_type) + '/' + str(item_id))
     except requests.exceptions.HTTPError as e:
-      logger.critical(e)
+      self.log.critical(e)
       raise
     return result
 
