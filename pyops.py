@@ -242,6 +242,9 @@ class opsview:
   def get_servicecheck(self,servicecheck_id):
     return self.get_configitem('servicecheck', servicecheck_id)
 
+  def get_status_hostgroup(self,hostgroup_id):
+    return self.get_hostgroup_statusitem('service', hostgroup_id)
+
   def get_hostgroup(self,hostgroup_id):
     return self.get_configitem('hostgroup', hostgroup_id)
 
