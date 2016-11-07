@@ -7,30 +7,43 @@ import os
 import json
 
 #Configure Variables
-dev1_user = os.environ['dev1_ops_user']
-dev1_pass = os.environ['dev1_ops_pass']
-dev1_base = "https://example-devel/opsview/rest/"
-
+# To use this, set prod_base to the rest url of the opsview server.
+# Then in bash run
+# $ export prod_ops_user=opsview_username
+# $ read -s prod_ops_pass
+# $ export prod_ops_pass
 prod_user = os.environ['prod_ops_user']
 prod_pass = os.environ['prod_ops_pass']
 prod_base = "https://example-prod/opsview/rest/"
 
 
 #Create instance of the monitoring server
-opsdev = pyops.opsview(dev1_user,dev1_pass,dev1_base)
 opsprod = pyops.opsview(prod_user,prod_pass,prod_base)
 
-data = opsesp.get_hostconfig("1")
-print opsesp.json_nice(data)
+# The easiest way of adding a server is copying the config from an existing server
+# First, get the info from a server you want
 
-print opsesp.json_nice(data)
+data = opsprod.get_host_by_name("name_of_the_server")
 
-newserver = { "object": { "ip": "1.2.3.4",  "name": "example",} ,}
+# Print the data for the host
+print opsprod.json_nice(data)
 
-print opsesp.json_nice(newserver)
+# Get the ID of the hosts (this is what you use as a source for the copy)
+hostid = data["object"]["id"]
+print hostid
 
-response = opsesp.post_data(opsesp.json_nice(newserver),"config/host/1")
+# You can also get the host data by id
+data = opsprod.get_hostconfig(hostid)
+print opsprod.json_nice(data)
+
+# Let's add a new server. We only define IP and name, the rest is copied from the
+# original server
+newserver = { "ip": "newhostname_or_ip", "name": "newhostname" }
+
+# By posting this data to the URL rest/config/host/hostid opsview will copy the
+# data of hostid, create a new host, and modify it with the data you posted.
+# So in this case, we'll take a copy of a host, and change the IP and name for
+# the new host. 
+
+response = opsprod.post_data(newserver,"config/host/" + hostid)
 print response
-
-
-
