@@ -1,10 +1,10 @@
 #!/usr/bin/python
 #
-# Chris Thomas and Peter Jenkins
+# Chris Thomas and Peter Jenkins and Johan Guldmyr and Kalle Happonen
 #
-# Date: 12/Jun/2014
+# Date: 07/Nov/2016
 #
-# Version:0.2
+# Version:0.3
 #
 import logging
 import requests
@@ -197,6 +197,22 @@ class opsview:
       raise
     return result
 
+  def get_statusitem(self,item_type, item_id):
+    try:
+      result = self.get_data('status/' + str(item_type) + str("?%s=%s" % (item_type,item_id)))
+    except requests.exceptions.HTTPError as e:
+      self.log.critical(e)
+      raise
+    return result
+
+  def get_hostgroup_statusitem(self,item_type, item_id):
+    try:
+      result = self.get_data('status/' + str(item_type) + str("?hostgroupid=%s" % (item_id)))
+    except requests.exceptions.HTTPError as e:
+      self.log.critical(e)
+      raise
+    return result
+
   def get_config_by_name(self, item_type, search_string):
     '''
     Search by name and return the item if there is just one match.
@@ -211,6 +227,9 @@ class opsview:
   def get_hostconfig(self,host_id=None):
     return self.get_configitem('host', host_id)
 
+  def get_status_host_by_name(self,host_name):
+    return self.get_statusitem('host', host_name)
+
   def get_host_by_name(self,host_name):
     return self.get_config_by_name('host', host_name)
 
@@ -223,11 +242,17 @@ class opsview:
   def get_servicecheck(self,servicecheck_id):
     return self.get_configitem('servicecheck', servicecheck_id)
 
+  def get_status_hostgroup(self,hostgroup_id):
+    return self.get_hostgroup_statusitem('service', hostgroup_id)
+
   def get_hostgroup(self,hostgroup_id):
     return self.get_configitem('hostgroup', hostgroup_id)
 
   def get_hostgroup_by_name(self, hostgroup_name):
     return self.get_config_by_name('hostgroup', hostgroup_name)
+
+  def get_status_hostgroup_by_id(self, hostgroup_id):
+    return self.get_hostgroup_statusitem('hostgroup', hostgroup_id)
 
   def get_servicegroup(self,servicegroup_id):
     return self.get_configitem('servicegroup', servicegroup_id)
