@@ -1,10 +1,10 @@
 #!/usr/bin/python
 #
-# Chris Thomas and Peter Jenkins
+# Chris Thomas and Peter Jenkins and Johan Guldmyr and Kalle Happonen
 #
-# Date: 12/Jun/2014
+# Date: 15/Feb/2017
 #
-# Version:0.2
+# Version:0.4
 #
 import logging
 import requests
@@ -15,7 +15,7 @@ import re
 
 # We need to verify certificates:
 # https://urllib3.readthedocs.org/en/latest/security.html
-import urllib3
+import urllib
 import certifi
 
 class PyOpsException(Exception):
@@ -189,9 +189,73 @@ class opsview:
   def get_user(self):
     return self.get_data("user")
 
+  def get_downtimes(self, page_id):
+    try:
+      result = self.get_data('downtime?' + str("page") + '=' + str(page_id))
+    except requests.exceptions.HTTPError as e:
+      self.log.critical(e)
+      raise
+    return result
+
+  def get_downtimes_by_hg(self, page_id, hostgroup_id):
+    try:
+      result = self.get_data('downtime?' + str("page=") + str(page_id) + str("&hostgroupid=") + str(hostgroup_id))
+    except requests.exceptions.HTTPError as e:
+      self.log.critical(e)
+      raise
+    return result
+
+  def set_downtime(self, hg_id, starttime, endtime, comment):
+    '''
+    ##
+    # Thank you
+    # https://www.pythian.com/blog/put-opsview-hosts-into-downtime-via-the-shell/
+    ##
+    # Set a downtime for hg_id from starttime to endtime with comment
+    ## Lessons learnt while writing this:
+     - API user needs to have DOWNTIMEALL permissions
+     - send the data with json.loads like: post_data(json.loads('{ "json": "json" }')), otherwise you get an error like this:
+      JSON text must be an object or array (but found number, string, true, false or null, use allow_nonref to allow this) at (eval 1868) line 161, <\$fh> line 1.
+     - error "no object chosen" in opsview-web.log probably means the URL doesn't have a valid host= or hostgroupid= parameter, it should be like these (without starttimes etc):
+    /opsview/rest/downtime?host=my-test-server
+    /opsview/rest/downtime?hostgroupid=103
+    ######
+
+    # Formats a la bash:
+    starttime=`date +"%Y/%m/%d %H:%M:%S"`
+    endtime=`date +"%Y/%m/%d %H:%M:%S" -d "$hours_of_downtime hours"`
+    # endtime can also be like this:
+    endtime="+9h"
+    comment="$0 api call"
+    # 
+
+    # TODO: Delete downtimes.
+    # This needs a new function which can do http DELETE, see url above for curl example.
+
+    '''
+    result = self.post_data(json.loads('{ "starttime" : "%s", "endtime" : "%s", "comment" : "%s" }' % (starttime,endtime,comment)),"downtime?hostgroupid=%s" % hg_id)
+    self.log.debug(`"downtime : downtime ",  result`)
+    self.log.info(result)
+
   def get_configitem(self,item_type, item_id):
     try:
       result = self.get_data('config/' + str(item_type) + '/' + str(item_id))
+    except requests.exceptions.HTTPError as e:
+      self.log.critical(e)
+      raise
+    return result
+
+  def get_statusitem(self,item_type, item_id):
+    try:
+      result = self.get_data('status/' + str(item_type) + str("?%s=%s" % (item_type,item_id)))
+    except requests.exceptions.HTTPError as e:
+      self.log.critical(e)
+      raise
+    return result
+
+  def get_hostgroup_statusitem(self,item_type, item_id):
+    try:
+      result = self.get_data('status/' + str(item_type) + str("?hostgroupid=%s" % (item_id)))
     except requests.exceptions.HTTPError as e:
       self.log.critical(e)
       raise
@@ -211,6 +275,9 @@ class opsview:
   def get_hostconfig(self,host_id=None):
     return self.get_configitem('host', host_id)
 
+  def get_status_host_by_name(self,host_name):
+    return self.get_statusitem('host', host_name)
+
   def get_host_by_name(self,host_name):
     return self.get_config_by_name('host', host_name)
 
@@ -223,11 +290,17 @@ class opsview:
   def get_servicecheck(self,servicecheck_id):
     return self.get_configitem('servicecheck', servicecheck_id)
 
+  def get_status_hostgroup(self,hostgroup_id):
+    return self.get_hostgroup_statusitem('service', hostgroup_id)
+
   def get_hostgroup(self,hostgroup_id):
     return self.get_configitem('hostgroup', hostgroup_id)
 
   def get_hostgroup_by_name(self, hostgroup_name):
     return self.get_config_by_name('hostgroup', hostgroup_name)
+
+  def get_status_hostgroup_by_id(self, hostgroup_id):
+    return self.get_hostgroup_statusitem('hostgroup', hostgroup_id)
 
   def get_servicegroup(self,servicegroup_id):
     return self.get_configitem('servicegroup', servicegroup_id)
