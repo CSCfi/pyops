@@ -20,11 +20,14 @@ def main(argv=None):
 
     parser = argparse.ArgumentParser(description='Set downtime for hosts in opsview.', 
                                      formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     epilog="""Examples:
-./set_downtime.py -e +1d testserver1 testserver2
-./set_downtime.py -s '2018-08-10 08:00' -c 'Server upgrade and maintenance' -e +8h prodserver1
-./set_downtime.py -d testserver1 testserver2 prodserver1
-./set_downtime.py -g -e +1d 'compute node group with spaces' 'compute node group 2'""")
+                                     epilog=("Examples:\n"
+                                             "./set_downtime.py -e +1d testserver1 testserver2\n"
+                                             "./set_downtime.py -s '2018-08-10 08:00' -c "
+                                             "'Server upgrade and maintenance' -e +8h prodserver1\n"
+                                            "./set_downtime.py -d testserver1 testserver2 prodserver1\n"
+                                            "./set_downtime.py -g -e +1d 'compute node group with spaces'"
+                                             "'compute node group 2'")
+                                     )
 
     parser.add_argument('hosts', nargs='*', help="A space separated list of hosts (or hostgroups, see -g) to apply the downtime to.")
     group = parser.add_mutually_exclusive_group(required=True)
@@ -34,21 +37,24 @@ def main(argv=None):
     parser.add_argument('-s', '--starttime', dest="starttime", default="now", help="Start time in an opsview format ('2018-08-10 13:00'). Defaults to 'now'")
     parser.add_argument('-g', '--group', dest="group", action="store_true", help="Interpret the host list as a list of hostgroup names, and apply the downtime to all the hosts in the groups.")
 
-    prod_base = "https://mon-esp.csc.fi/opsview/rest/"
+    args = parser.parse_args(argv[1:])
+
     try:
         prod_user = os.environ['prod_ops_user']
         prod_pass = os.environ['prod_ops_pass']
+        prod_base = os.environ['prod_ops_base']
     except KeyError:
-        print 'Error: You need to specify the "prod_ops_user" and "prod_ops_pass" environment variables. For example:'
-        print 'export prod_ops_user="username"'
-        print 'read -s prod_ops_pass'
-        print 'export prod_ops_pass'
+        print(
+            'Error: You need to specify the "prod_ops_user" and "prod_ops_pass" and "prod_ops_base" environment variables. For example:')
+        print('export prod_ops_user="username"')
+        print('read -s prod_ops_pass')
+        print('export prod_ops_pass')
+        print('export prod_ops_base="https://your-opsview-server/opsview/rest/"')
         return 1
 
-    args = parser.parse_args(argv[1:])
     if len(args.hosts) < 1:
         parser.print_help()
-        print 'Error: Specify one or more hosts/hostgroups'
+        print('Error: Specify one or more hosts/hostgroups')
         return 1
 
     opsprod = pyops.opsview(prod_user, prod_pass, prod_base)
@@ -58,7 +64,7 @@ def main(argv=None):
         for host in args.hosts:
             res = opsprod.get_hostgroup_by_name(host)
             if not res:
-                print "Warning: could not find hostgroup '%s'" % host
+                print("Warning: could not find hostgroup '%s'" % host)
             else:
                 hltemp = [item["name"] for item in res["object"]["hosts"]]
                 hostlist.extend(hltemp)
