@@ -62,7 +62,7 @@ class opsview:
 
         # Login and get the token for all future requests
         self.token = self.get_token()
-        self.log.debug(`"Got token:", self.token`)
+        self.log.debug("Got token:", self.token)
 
         # Setup headers for all future requests
         self.headers = {
@@ -96,7 +96,6 @@ class opsview:
         '''
         login = {'username': self.ops_user,
                  'password': self.ops_pass}
-
         try:
             response = requests.post(self.ops_base + "login", login, verify=False)
             token = response.json()['token']
@@ -183,7 +182,7 @@ class opsview:
             return result
         elif "reload" in check:
             result = self.post_data("","reload")
-            self.log.debug(`"ops_reload : reload ",    result`)
+            self.log.debug("ops_reload : reload ",    result)
             self.log.info(result)
 
     '''
@@ -244,7 +243,7 @@ class opsview:
 
         '''
         result = self.post_data(json.loads('{ "starttime" : "%s", "endtime" : "%s", "comment" : "%s" }' % (starttime, endtime, comment)),"downtime?hostgroupid=%s" % hg_id)
-        self.log.debug(`"downtime : downtime ", result`)
+        self.log.debug("downtime : downtime ", result)
         self.log.info(result)
 
     def set_host_downtime(self, hosts, starttime, endtime, comment):
