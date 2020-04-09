@@ -40,34 +40,34 @@ for host in data1['object']['hosts']:
 for host in data2['object']['hosts']:
   hosts.append(host['name'])
 
-print hosts
+print (hosts)
 
 # Remove this when you have the bottom figured out
 exit(0)
 
 for host in hosts:
-  print "Attempting to modify host " + host
+  print ("Attempting to modify host " + host)
   data = opsprod.get_host_by_name(host)
   hostid = data["object"]["id"]
   cnt = 0
 
   if data["object"]["notification_interval"] == "60":
-    print data["object"]["notification_interval"]
-    print "would set notification_interval from 60 to 0"
+    print (data["object"]["notification_interval"])
+    print ("would set notification_interval from 60 to 0")
     data["object"]["notification_interval"] = "0"
     cnt = cnt + 1
 
   if data["object"]["flap_detection_enabled"] == "0":
-    print data["object"]["flap_detection_enabled"]
-    print "would enable flap detection"
+    print (data["object"]["flap_detection_enabled"])
+    print ("would enable flap detection")
     data["object"]["flap_detection_enabled"] = "1"
     cnt = cnt + 1
 
   if cnt != 0:
-    print "Sending new config to opsview"
+    print ("Sending new config to opsview")
     res = opsprod.put_data(data, 'config/host/' + hostid);
   else:
-    print "Not changing anything"
+    print ("Not changing anything")
 
 if cnt != 0:
-  print "Reload opsview"
+  print ("Reload opsview")

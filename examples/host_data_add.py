@@ -24,13 +24,13 @@ opsprod = pyops.opsview(prod_user,prod_pass,prod_base)
 data = opsprod.get_host_by_name(hosts[0])
 
 # Print the data for the host
-print opsprod.json_nice(data)
+print (opsprod.json_nice(data))
 
 # Remove this when you have the bottom figured out
 exit(0)
 
 for host in hosts:
-  print "Modifying host " + host
+  print ("Modifying host " + host)
   data = opsprod.get_host_by_name(host)
   hostid = data["object"]["id"]
 
