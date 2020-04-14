@@ -26,15 +26,15 @@ opsprod = pyops.opsview(prod_user,prod_pass,prod_base)
 data = opsprod.get_host_by_name("name_of_the_server")
 
 # Print the data for the host
-print (opsprod.json_nice(data))
+print(opsprod.json_nice(data))
 
 # Get the ID of the hosts (this is what you use as a source for the copy)
 hostid = data["object"]["id"]
-print (hostid)
+print(hostid)
 
 # You can also get the host data by id
 data = opsprod.get_hostconfig(hostid)
-print (opsprod.json_nice(data))
+print(opsprod.json_nice(data))
 
 # Let's add a new server. We only define IP and name, the rest is copied from the
 # original server
@@ -46,4 +46,4 @@ newserver = { "ip": "newhostname_or_ip", "name": "newhostname" }
 # the new host. 
 
 response = opsprod.post_data(newserver,"config/host/" + hostid)
-print (response)
+print(response)
