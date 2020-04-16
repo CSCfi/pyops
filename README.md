@@ -15,7 +15,7 @@ How to set downtime:
 Adding node for monitoring:
 
 First we need to edit examples/createhostExample.py file and a add node name from where pyops will fetch template data.
-For example, if you want to add a new nodes in devel environment, then we can take metadata from a devel node
+For example, if you want to add a new node in devel environment, then we can take metadata from a devel node
 reference-server.domain. If your newserver is new-server.domain, then we can do following.
 
     $ export prod_ops_user="username"
