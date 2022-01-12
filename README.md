@@ -4,7 +4,7 @@ Usage
 
 How to set downtime:
 
-    $ pip install pip install git+ssh://git@github.com/CSCfi/pyops.git
+    $ pip install git+ssh://git@github.com/CSCfi/pyops.git
     $ pyops-downtime --help
     $ export prod_ops_user="username"
     $ read -s prod_ops_pass
@@ -21,7 +21,7 @@ reference-server.domain. If your newserver is new-server.domain, then we can do 
     $ export prod_ops_user="username"
     $ read -s prod_ops_pass
     $ export prod_ops_pass
-    $ export prod_ops_base="https://your-opsview-server/opsview/rest/""    
+    $ export prod_ops_base="https://your-opsview-server/opsview/rest/""
     $ vim examples/createhostExample.py
 data = opsprod.get_host_by_name("reference-server.domain")
 newserver = { "ip": "new-server.domain", "name": "new-server.domain" }
