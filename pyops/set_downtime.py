@@ -4,8 +4,8 @@
 #
 import os
 import sys
-import pyops
 import argparse
+from pyops import pyops
 
 #Configure Variables
 # To use this, set prod_base to the rest url of the opsview server.
@@ -18,16 +18,16 @@ def main(argv=None):
     if argv is None:
         argv = sys.argv
 
-    parser = argparse.ArgumentParser(description='Set downtime for hosts in opsview.', 
-                                     formatter_class=argparse.RawDescriptionHelpFormatter,
-                                     epilog=("Examples:\n"
-                                             "./set_downtime.py -e +1d testserver1 testserver2\n"
-                                             "./set_downtime.py -s '2018-08-10 08:00' -c "
-                                             "'Server upgrade and maintenance' -e +8h prodserver1\n"
+    parser = argparse.ArgumentParser(description='Set downtime for hosts in opsview.',
+                                    formatter_class=argparse.RawDescriptionHelpFormatter,
+                                    epilog=("Examples:\n"
+                                            "./set_downtime.py -e +1d testserver1 testserver2\n"
+                                            "./set_downtime.py -s '2018-08-10 08:00' -c "
+                                            "'Server upgrade and maintenance' -e +8h prodserver1\n"
                                             "./set_downtime.py -d testserver1 testserver2 prodserver1\n"
                                             "./set_downtime.py -g -e +1d 'compute node group with spaces'"
-                                             "'compute node group 2'")
-                                     )
+                                            "'compute node group 2'")
+                                    )
 
     parser.add_argument('hosts', nargs='*', help="A space separated list of hosts (or hostgroups, see -g) to apply the downtime to.")
     group = parser.add_mutually_exclusive_group(required=True)
@@ -57,8 +57,8 @@ def main(argv=None):
         print('Error: Specify one or more hosts/hostgroups')
         return 1
 
-    opsprod = pyops.opsview(prod_user, prod_pass, prod_base)
- 
+    opsprod = pyops.Opsview(prod_user, prod_pass, prod_base)
+
     if args.group:
         hostlist = []
         for host in args.hosts:
