@@ -1,30 +1,57 @@
 # pyops - Python bindings for the Opsview API
 
-Usage
+## Installation
 
-How to set downtime:
+```sh
+pip install git+ssh://git@github.com/CSCfi/pyops.git
+```
 
-    $ pip install git+ssh://git@github.com/CSCfi/pyops.git
-    $ pyops-downtime --help
-    $ export prod_ops_user="username"
-    $ read -s prod_ops_pass
-    $ export prod_ops_pass
-    $ export prod_ops_base="https://your-opsview-server/opsview/rest/""
-    $ pyops-downtime -e +1d testserver1 testserver2
+## Usage
 
-Adding node for monitoring:
+See command help with `pyops-downtime --help`.
+PyOPS expects to find the following variables:
 
-First we need to edit examples/createhostExample.py file and a add node name from where pyops will fetch template data.
-For example, if you want to add a new node in devel environment, then we can take metadata from a devel node
-reference-server.domain. If your newserver is new-server.domain, then we can do following.
+- `prod_ops_base` -- The REST API endpoint of your OpsView-instance
+- `prod_ops_user` -- username to be used to login to opsview
+- `prod_ops_pass` -- password for the user
 
-    $ export prod_ops_user="username"
-    $ read -s prod_ops_pass
-    $ export prod_ops_pass
-    $ export prod_ops_base="https://your-opsview-server/opsview/rest/""
-    $ vim examples/createhostExample.py
-data = opsprod.get_host_by_name("reference-server.domain")
-newserver = { "ip": "new-server.domain", "name": "new-server.domain" }
+Can be setup with following:
 
-    $ PYTHONPATH=./pyops python examples/createhostExample.py
+```sh
+export prod_ops_base="https://<your-opsview-server>/rest/"
+export prod_ops_user="$USER"
+read -s prod_ops_pass && export prod_ops_pass # Read OpsView password from stdin
+```
 
+Optional arguments:
+
+```none
+-e ENDTIME, --endtime ENDTIME
+            Downtime end time in an opsview format (e.g. +10m, +2d or '2018-08-10 15:00').
+-d, --delete          Delete downtimes instead of adding them.
+-c COMMENT, --comment COMMENT
+                    Comment for the downtime
+-s STARTTIME, --starttime STARTTIME
+                    Start time in an opsview format ('2018-08-10 13:00'). Defaults to 'now'
+-g, --group     Interpret the host list as a list of hostgroup names,
+                    and apply the downtime to all the hosts in the groups.
+```
+
+### Setting/Deleting a downtime for node(s)
+
+```sh
+# Individual nodes
+pyops-downtime -e +1d -c "Server maintenance" testserver1 testserver2
+## Delete
+pyops-downtime -d testserver1 testserver2
+
+# A named group of nodes
+pyops-downtime -e +2h -c "Server maintenance" -g "My Monitoring Group"
+pyops-downtime -d -g "My Monitoring Group"
+```
+
+### Other Examples
+
+Example scripts for inspiration can be found from `./examples/`.
+
+> Copy and edit as needed
