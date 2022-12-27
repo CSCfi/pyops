@@ -18,7 +18,7 @@ PyOPS expects to find the following variables:
 Can be setup with following:
 
 ```sh
-export prod_ops_base="https://<your-opsview-server>/rest/"
+export prod_ops_base="https://<your-opsview-server>/opsview/rest/"
 export prod_ops_user="$USER"
 read -s prod_ops_pass && export prod_ops_pass # Read OpsView password from stdin
 ```
