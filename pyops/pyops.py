@@ -35,7 +35,7 @@ class LoginFailedException(PyOpsException):
 
 ##### CLASS STARTED:
 
-class opsview:
+class Opsview:
     def __init__(self, ops_user, ops_pass, ops_base):
         self.log = logging.getLogger(__name__)
         self.log.setLevel(logging.WARNING)
@@ -95,7 +95,7 @@ class opsview:
         Log into Opsview and get a Token
         '''
         login = {'username': self.ops_user,
-                 'password': self.ops_pass}
+                'password': self.ops_pass}
         try:
             response = requests.post(self.ops_base + "login", login, verify=False)
             token = response.json()['token']
@@ -168,8 +168,8 @@ class opsview:
 
         This is the same as reloading the config in the GUI and is needed before changes take effect.
         This does the following:
-         - Dumps the Opsview database into nagios config files (ugly ones!)
-         - Restarts the nagios server
+        - Dumps the Opsview database into nagios config files (ugly ones!)
+        - Restarts the nagios server
 
         This is propper scary because we might restart while someone else is making changes. Opsview's
         design is the issue here. Probably best to make changes with the api and manually restart.
@@ -222,10 +222,10 @@ class opsview:
         ##
         # Set a downtime for hg_id from starttime to endtime with comment
         ## Lessons learnt while writing this:
-         - API user needs to have DOWNTIMEALL permissions
-         - send the data with json.loads like: post_data(json.loads('{ "json": "json" }')), otherwise you get an error like this:
-            JSON text must be an object or array (but found number, string, true, false or null, use allow_nonref to allow this) at (eval 1868) line 161, <\$fh> line 1.
-         - error "no object chosen" in opsview-web.log probably means the URL doesn't have a valid host= or hostgroupid= parameter, it should be like these (without starttimes etc):
+            - API user needs to have DOWNTIMEALL permissions
+            - send the data with json.loads like: post_data(json.loads('{ "json": "json" }')), otherwise you get an error like this:
+                JSON text must be an object or array (but found number, string, true, false or null, use allow_nonref to allow this) at (eval 1868) line 161, <\$fh> line 1.
+            - error "no object chosen" in opsview-web.log probably means the URL doesn't have a valid host= or hostgroupid= parameter, it should be like these (without starttimes etc):
         /opsview/rest/downtime?host=my-test-server
         /opsview/rest/downtime?hostgroupid=103
         ######
@@ -236,7 +236,7 @@ class opsview:
         # endtime can also be like this:
         endtime="+9h"
         comment="$0 api call"
-        # 
+        #
 
         # TODO: Delete downtimes.
         # This needs a new function which can do http DELETE, see url above for curl example.
@@ -254,7 +254,7 @@ class opsview:
         '''
 
         for host in hosts:
-            try: 
+            try:
                 self.post_data(json.loads('{ "starttime" : "%s", "endtime" : "%s", "comment" : "%s" }  ' % (starttime, endtime, comment)),"downtime?hst.hostname=%s" % host)
                 self.log.debug("Downtime set for %s" % host)
             except requests.exceptions.HTTPError:
@@ -351,8 +351,8 @@ class opsview:
         so we'll just build the string ourselves '''
         self.log.info("Search" + item_type + ' for ' + search_string)
         return self.get_data('config/' + item_type +
-                                                 '?rows=all&json_filter={"name":{"-like":"%25' +
-                                                 search_string + '%25"}}')
+                                                '?rows=all&json_filter={"name":{"-like":"%25' +
+                                                search_string + '%25"}}')
 
     def search_hosttemplate(self, search_string):
         '''
@@ -393,22 +393,22 @@ class opsview:
 
         ''' get_host_by_name() returns False if there is no match '''
         if host:
-         host_attrs = host['object']['hostattributes']
-         for attr in host_attrs:
-             ''' If the attribute is already set once, remove it!
-             Not all attributes work this way! DISK for example '''
-             if attr['name'] == name:
-                 host_attrs.remove(attr)
-         ''' Append the new attribute '''
-         host_attrs.append(new_attr)
+            host_attrs = host['object']['hostattributes']
+            for attr in host_attrs:
+                ''' If the attribute is already set once, remove it!
+                Not all attributes work this way! DISK for example '''
+                if attr['name'] == name:
+                    host_attrs.remove(attr)
+            ''' Append the new attribute '''
+            host_attrs.append(new_attr)
 
-         ''' Add the attributes back to the object.
-         (assuming we are working on a copy of the array) '''
-         host['object']['hostattributes'] = host_attrs
-         self.update_host(host)
-         return True
+            ''' Add the attributes back to the object.
+            (assuming we are working on a copy of the array) '''
+            host['object']['hostattributes'] = host_attrs
+            self.update_host(host)
+            return True
         else:
-         return False
+            return False
 
     def set_hostgroup_attribute(self, hostgroup_name, name, value):
         hostgroup = self.get_hostgroup_by_name(hostgroup_name)
